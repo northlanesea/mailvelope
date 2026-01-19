@@ -120,16 +120,16 @@ export default class General extends React.Component {
             {this.state.auto_send_msg && (
               <div className="ml-4 mt-2">
                 <label htmlFor="auto_send_delay" className="mr-2">{l10n.map.general_auto_send_delay}</label>
-                <input 
-                  type="number" 
-                  id="auto_send_delay" 
-                  name="auto_send_delay" 
-                  className="form-control d-inline-block" 
+                <input
+                  type="number"
+                  id="auto_send_delay"
+                  name="auto_send_delay"
+                  className="form-control d-inline-block"
                   style={{width: '80px'}}
-                  min="1" 
-                  max="60" 
-                  value={this.state.auto_send_delay} 
-                  onChange={this.handleDelayChange} 
+                  min="1"
+                  max="60"
+                  value={this.state.auto_send_delay}
+                  onChange={this.handleDelayChange}
                 />
                 <span className="ml-2">{l10n.map.general_auto_send_delay_seconds}</span>
               </div>

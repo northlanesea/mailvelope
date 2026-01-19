@@ -87,7 +87,7 @@ export default class GmailController extends SubController {
     if (prefs.general.auto_send_msg) {
       const delay = prefs.general.auto_send_delay || 5;
       this.autoSendCancelled = false;
-      
+
       // Show countdown notification
       for (let remaining = delay; remaining > 0; remaining--) {
         if (this.autoSendCancelled) {
@@ -101,7 +101,7 @@ export default class GmailController extends SubController {
           });
           return;
         }
-        
+
         this.peers.editorController.ports.editor.emit('show-notification', {
           message: l10n.get('gmail_integration_auto_send_countdown', [remaining.toString()]),
           type: 'info',
@@ -109,12 +109,12 @@ export default class GmailController extends SubController {
           dismissable: true,
           showCancelButton: true
         });
-        
+
         await new Promise(resolve => {
           this.autoSendTimer = setTimeout(resolve, 1000);
         });
       }
-      
+
       if (this.autoSendCancelled) {
         this.peers.editorController.ports.editor.emit('show-notification', {
           message: l10n.get('gmail_integration_send_cancelled'),

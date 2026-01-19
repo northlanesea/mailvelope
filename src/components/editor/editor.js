@@ -495,11 +495,11 @@ export default class Editor extends React.Component {
         {this.state.pwdDialog && <iframe className="editor-popup-pwd-dialog modal-content" src={`../enter-password/passwordDialog.html?id=${this.state.pwdDialog.id}`} frameBorder={0} />}
         {this.state.notification &&
           <div className="toastWrapper">
-            <Toast 
-              isOpen={this.state.showNotification} 
-              header={this.state.notification.header} 
-              toggle={this.state.notification.dismissable ? () => this.hideNotification() : undefined} 
-              type={this.state.notification.type} 
+            <Toast
+              isOpen={this.state.showNotification}
+              header={this.state.notification.header}
+              toggle={this.state.notification.dismissable ? () => this.hideNotification() : undefined}
+              type={this.state.notification.type}
               transition={{timeout: 150, unmountOnExit: true, onEntered: () => this.onNotificationEnteredTransition()}}
               showCancelButton={this.state.notification.showCancelButton}
               onCancel={() => this.handleCancelAutoSend()}
