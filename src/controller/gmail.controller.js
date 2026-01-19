@@ -23,6 +23,7 @@ export default class GmailController extends SubController {
     this.authorizationRequest = null;
     this.autoSendTimer = null;
     this.autoSendCancelled = false;
+    this.autoSendReject = null;
     // register event handlers
     this.on('open-editor', this.onOpenEditor);
     this.on('secure-button', this.onSecureBtn);
@@ -88,33 +89,38 @@ export default class GmailController extends SubController {
       const delay = prefs.general.auto_send_delay || 5;
       this.autoSendCancelled = false;
 
-      // Show countdown notification
-      for (let remaining = delay; remaining > 0; remaining--) {
-        this.peers.editorController.ports.editor.emit('show-notification', {
-          message: l10n.get('gmail_integration_auto_send_countdown', [remaining.toString()]),
-          type: 'info',
-          autoHide: false,
-          dismissable: true,
-          showCancelButton: true
-        });
+      try {
+        // Show countdown notification
+        for (let remaining = delay; remaining > 0; remaining--) {
+          this.peers.editorController.ports.editor.emit('show-notification', {
+            message: l10n.get('gmail_integration_auto_send_countdown', [remaining.toString()]),
+            type: 'info',
+            autoHide: false,
+            dismissable: true,
+            showCancelButton: true
+          });
 
-        await new Promise((resolve, reject) => {
-          this.autoSendTimer = setTimeout(() => {
-            this.autoSendTimer = null;
-            if (this.autoSendCancelled) {
-              reject(new Error('cancelled'));
-            } else {
-              resolve();
-            }
-          }, 1000);
-        }).catch(() => {
+          await new Promise((resolve, reject) => {
+            this.autoSendReject = reject;
+            this.autoSendTimer = setTimeout(() => {
+              this.autoSendTimer = null;
+              this.autoSendReject = null;
+              if (this.autoSendCancelled) {
+                reject(new Error('cancelled'));
+              } else {
+                resolve();
+              }
+            }, 1000);
+          });
+        }
+
+        // Check one more time after countdown completes
+        if (this.autoSendCancelled) {
           this.showCancelledNotification();
-          throw new Error('cancelled');
-        });
-      }
-
-      // Check one more time after countdown completes
-      if (this.autoSendCancelled) {
+          return;
+        }
+      } catch (error) {
+        // Countdown was cancelled
         this.showCancelledNotification();
         return;
       }
@@ -159,6 +165,10 @@ export default class GmailController extends SubController {
     if (this.autoSendTimer) {
       clearTimeout(this.autoSendTimer);
       this.autoSendTimer = null;
+    }
+    if (this.autoSendReject) {
+      this.autoSendReject(new Error('cancelled'));
+      this.autoSendReject = null;
     }
   }
 
