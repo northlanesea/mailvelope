@@ -90,18 +90,6 @@ export default class GmailController extends SubController {
 
       // Show countdown notification
       for (let remaining = delay; remaining > 0; remaining--) {
-        if (this.autoSendCancelled) {
-          this.peers.editorController.ports.editor.emit('show-notification', {
-            message: l10n.get('gmail_integration_send_cancelled'),
-            type: 'info',
-            autoHide: true,
-            hideDelay: 2000,
-            closeOnHide: true,
-            dismissable: false
-          });
-          return;
-        }
-
         this.peers.editorController.ports.editor.emit('show-notification', {
           message: l10n.get('gmail_integration_auto_send_countdown', [remaining.toString()]),
           type: 'info',
@@ -110,20 +98,24 @@ export default class GmailController extends SubController {
           showCancelButton: true
         });
 
-        await new Promise(resolve => {
-          this.autoSendTimer = setTimeout(resolve, 1000);
+        await new Promise((resolve, reject) => {
+          this.autoSendTimer = setTimeout(() => {
+            this.autoSendTimer = null;
+            if (this.autoSendCancelled) {
+              reject(new Error('cancelled'));
+            } else {
+              resolve();
+            }
+          }, 1000);
+        }).catch(() => {
+          this.showCancelledNotification();
+          throw new Error('cancelled');
         });
       }
 
+      // Check one more time after countdown completes
       if (this.autoSendCancelled) {
-        this.peers.editorController.ports.editor.emit('show-notification', {
-          message: l10n.get('gmail_integration_send_cancelled'),
-          type: 'info',
-          autoHide: true,
-          hideDelay: 2000,
-          closeOnHide: true,
-          dismissable: false
-        });
+        this.showCancelledNotification();
         return;
       }
     }
@@ -149,6 +141,17 @@ export default class GmailController extends SubController {
       });
     }
     await this.removePeer('editorController');
+  }
+
+  showCancelledNotification() {
+    this.peers.editorController.ports.editor.emit('show-notification', {
+      message: l10n.get('gmail_integration_send_cancelled'),
+      type: 'info',
+      autoHide: true,
+      hideDelay: 2000,
+      closeOnHide: true,
+      dismissable: false
+    });
   }
 
   onCancelAutoSend() {

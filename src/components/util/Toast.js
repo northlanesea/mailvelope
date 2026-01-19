@@ -6,6 +6,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Toast as ToastRS, ToastHeader as ToastHeaderRS, ToastBody as ToastBodyRS, Fade as FadeRS} from 'reactstrap';
+import * as l10n from '../../lib/l10n';
+
+l10n.register([
+  'form_cancel'
+]);
 
 /**
  * Alert
@@ -23,7 +28,7 @@ export default function Toast({className, isOpen, transition, toggle, header, ty
         {message}
         {showCancelButton && (
           <button type="button" onClick={onCancel} className="btn btn-secondary btn-sm ml-auto">
-            Cancel
+            {l10n.map.form_cancel}
           </button>
         )}
         {toggle && !header && !showCancelButton && (
