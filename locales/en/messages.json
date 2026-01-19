@@ -627,6 +627,18 @@
     "description": "Label for default private key option.",
     "message": "Sign all outgoing messages."
   },
+  "general_auto_send_msg": {
+    "description": "Label for auto-send messages option.",
+    "message": "Automatically send encrypted messages after a countdown."
+  },
+  "general_auto_send_delay": {
+    "description": "Label for auto-send delay option.",
+    "message": "Countdown delay:"
+  },
+  "general_auto_send_delay_seconds": {
+    "description": "Unit for auto-send delay.",
+    "message": "seconds"
+  },
   "general_gnupg_check_availability": {
     "description": "Button label to check availability of GnuPG",
     "message": "Allow us to check availability"
@@ -678,6 +690,14 @@
   "gmail_integration_sent_success": {
     "description": "Email sent success notification",
     "message": "The email was sent successfully."
+  },
+  "gmail_integration_auto_send_countdown": {
+    "description": "Auto-send countdown notification",
+    "message": "Sending message in $1 second(s)... Click Cancel to stop."
+  },
+  "gmail_integration_send_cancelled": {
+    "description": "Send cancelled notification",
+    "message": "Message sending has been cancelled."
   },
   "gnupg_connection": {
     "description": "Header that shows that GnuPG is available on the system.",

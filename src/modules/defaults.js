@@ -55,6 +55,12 @@ export function init() {
       if (typeof prefs.general.prefer_gnupg == 'undefined') {
         prefs.general.prefer_gnupg = defaults.preferences.general.prefer_gnupg;
       }
+      if (typeof prefs.general.auto_send_msg == 'undefined') {
+        prefs.general.auto_send_msg = defaults.preferences.general.auto_send_msg;
+      }
+      if (typeof prefs.general.auto_send_delay == 'undefined') {
+        prefs.general.auto_send_delay = defaults.preferences.general.auto_send_delay;
+      }
       if (typeof prefs.security.hide_armored_header == 'undefined') {
         prefs.security.hide_armored_header = defaults.preferences.security.hide_armored_header;
       }

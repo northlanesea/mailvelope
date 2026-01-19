@@ -282,6 +282,8 @@
     "general": {
       "auto_add_primary": true,
       "auto_sign_msg": true,
+      "auto_send_msg": false,
+      "auto_send_delay": 5,
       "prefer_gnupg": true
     },
     "provider": {
