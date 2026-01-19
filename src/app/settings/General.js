@@ -11,6 +11,9 @@ import Trans from '../../components/util/Trans';
 l10n.register([
   'form_cancel',
   'form_save',
+  'general_auto_send_delay',
+  'general_auto_send_delay_seconds',
+  'general_auto_send_msg',
   'general_default_key_always',
   'general_default_key_auto_sign',
   'general_gnupg_check_availability',
@@ -31,11 +34,14 @@ export default class General extends React.Component {
     this.state = {
       auto_add_primary: false,
       auto_sign_msg: false,
+      auto_send_msg: false,
+      auto_send_delay: 5,
       prefer_gnupg: false,
       modified: false,
       nativeMessaging: true
     };
     this.handleCheck = this.handleCheck.bind(this);
+    this.handleDelayChange = this.handleDelayChange.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
   }
@@ -50,6 +56,8 @@ export default class General extends React.Component {
     this.setState({
       auto_add_primary: general.auto_add_primary,
       auto_sign_msg: general.auto_sign_msg,
+      auto_send_msg: general.auto_send_msg,
+      auto_send_delay: general.auto_send_delay,
       prefer_gnupg: general.prefer_gnupg,
       modified: false
     });
@@ -59,11 +67,18 @@ export default class General extends React.Component {
     this.setState({[target.name]: target.checked, modified: true});
   }
 
+  handleDelayChange({target}) {
+    const value = Math.max(1, Math.min(60, parseInt(target.value) || 5));
+    this.setState({auto_send_delay: value, modified: true});
+  }
+
   async handleSave() {
     const update = {
       general: {
         auto_add_primary: this.state.auto_add_primary,
         auto_sign_msg: this.state.auto_sign_msg,
+        auto_send_msg: this.state.auto_send_msg,
+        auto_send_delay: this.state.auto_send_delay,
         prefer_gnupg: this.state.prefer_gnupg
       }
     };
@@ -98,6 +113,27 @@ export default class General extends React.Component {
               <input className="custom-control-input" type="checkbox" id="auto_sign_msg" name="auto_sign_msg" checked={this.state.auto_sign_msg} onChange={this.handleCheck} />
               <label className="custom-control-label" htmlFor="auto_sign_msg"><span>{l10n.map.general_default_key_auto_sign}</span></label>
             </div>
+            <div className="custom-control custom-checkbox">
+              <input className="custom-control-input" type="checkbox" id="auto_send_msg" name="auto_send_msg" checked={this.state.auto_send_msg} onChange={this.handleCheck} />
+              <label className="custom-control-label" htmlFor="auto_send_msg"><span>{l10n.map.general_auto_send_msg}</span></label>
+            </div>
+            {this.state.auto_send_msg && (
+              <div className="ml-4 mt-2">
+                <label htmlFor="auto_send_delay" className="mr-2">{l10n.map.general_auto_send_delay}</label>
+                <input 
+                  type="number" 
+                  id="auto_send_delay" 
+                  name="auto_send_delay" 
+                  className="form-control d-inline-block" 
+                  style={{width: '80px'}}
+                  min="1" 
+                  max="60" 
+                  value={this.state.auto_send_delay} 
+                  onChange={this.handleDelayChange} 
+                />
+                <span className="ml-2">{l10n.map.general_auto_send_delay_seconds}</span>
+              </div>
+            )}
           </div>
           <AppOptions.Consumer>
             {({gnupg}) => (

@@ -10,7 +10,7 @@ import {Toast as ToastRS, ToastHeader as ToastHeaderRS, ToastBody as ToastBodyRS
 /**
  * Alert
  */
-export default function Toast({className, isOpen, transition, toggle, header, type, children: message}) {
+export default function Toast({className, isOpen, transition, toggle, header, type, children: message, showCancelButton, onCancel}) {
   return (
     <ToastRS className={`${className || ''} ${type || ''}`} isOpen={isOpen} transition={transition}>
       {header &&
@@ -20,7 +20,13 @@ export default function Toast({className, isOpen, transition, toggle, header, ty
       }
       <ToastBodyRS className={`d-flex align-items-center ${toggle && !header ? 'dismissable' : ''}`}>
         {toggle && !header && (type && <span aria-hidden="true" className={`icon-svg icon-svg-${type === 'success' ? 'positive' : 'negative'} flex-shrink-0`}></span>)}
-        {message} {toggle && !header && (
+        {message}
+        {showCancelButton && (
+          <button type="button" onClick={onCancel} className="btn btn-secondary btn-sm ml-auto">
+            Cancel
+          </button>
+        )}
+        {toggle && !header && !showCancelButton && (
           <button type="button" onClick={toggle} className="close ml-auto" aria-label="Close">
             <span aria-hidden="true" className="icon icon-close flex-shrink-0 ml-3"></span>
           </button>
@@ -36,8 +42,10 @@ Toast.propTypes = {
   transition: PropTypes.shape(FadeRS.propTypes),
   toggle: PropTypes.func,
   header: PropTypes.string,
-  type: PropTypes.oneOf(['success', 'error']),
+  type: PropTypes.oneOf(['success', 'error', 'info']),
   children: PropTypes.node.isRequired,
+  showCancelButton: PropTypes.bool,
+  onCancel: PropTypes.func,
 };
 
 Toast.defaultProps = {

@@ -627,6 +627,18 @@
         "message": "Tanda tangani semua pesan keluar.",
         "description": "Label for default private key option."
     },
+    "general_auto_send_msg": {
+        "message": "Kirim pesan terenkripsi secara otomatis setelah hitungan mundur.",
+        "description": "Label for auto-send messages option."
+    },
+    "general_auto_send_delay": {
+        "message": "Penundaan hitungan mundur:",
+        "description": "Label for auto-send delay option."
+    },
+    "general_auto_send_delay_seconds": {
+        "message": "detik",
+        "description": "Unit for auto-send delay."
+    },
     "general_gnupg_check_availability": {
         "message": "Izinkan kami memeriksa ketersediaan",
         "description": "Button label to check availability of GnuPG"
@@ -678,6 +690,14 @@
     "gmail_integration_sent_success": {
         "message": "Surel berhasil terkirim.",
         "description": "Email sent success notification"
+    },
+    "gmail_integration_auto_send_countdown": {
+        "message": "Mengirim pesan dalam $1 detik... Klik Batal untuk menghentikan.",
+        "description": "Auto-send countdown notification"
+    },
+    "gmail_integration_send_cancelled": {
+        "message": "Pengiriman pesan telah dibatalkan.",
+        "description": "Send cancelled notification"
     },
     "gnupg_connection": {
         "message": "Koneksi GnuPG",

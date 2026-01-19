@@ -279,7 +279,7 @@ export default class Editor extends React.Component {
     }
   }
 
-  showNotification({title: header = '', message, type, autoHide = true, hideDelay = 4000, closeOnHide = false, dismissable = true}) {
+  showNotification({title: header = '', message, type, autoHide = true, hideDelay = 4000, closeOnHide = false, dismissable = true, showCancelButton = false}) {
     this.setState({
       notification: {
         header,
@@ -288,7 +288,8 @@ export default class Editor extends React.Component {
         autoHide,
         hideDelay,
         closeOnHide,
-        dismissable
+        dismissable,
+        showCancelButton
       },
       waiting: false,
       pwdDialog: null,
@@ -375,6 +376,11 @@ export default class Editor extends React.Component {
 
   handleKeyLookup(recipient) {
     this.port.emit('key-lookup', {recipient});
+  }
+
+  handleCancelAutoSend() {
+    this.port.emit('cancel-auto-send');
+    this.hideNotification();
   }
 
   hideNotification(timeout = 0, closeEditor = false) {
@@ -489,7 +495,15 @@ export default class Editor extends React.Component {
         {this.state.pwdDialog && <iframe className="editor-popup-pwd-dialog modal-content" src={`../enter-password/passwordDialog.html?id=${this.state.pwdDialog.id}`} frameBorder={0} />}
         {this.state.notification &&
           <div className="toastWrapper">
-            <Toast isOpen={this.state.showNotification} header={this.state.notification.header} toggle={this.state.notification.dismissable ? () => this.hideNotification() : undefined} type={this.state.notification.type} transition={{timeout: 150, unmountOnExit: true, onEntered: () => this.onNotificationEnteredTransition()}}>
+            <Toast 
+              isOpen={this.state.showNotification} 
+              header={this.state.notification.header} 
+              toggle={this.state.notification.dismissable ? () => this.hideNotification() : undefined} 
+              type={this.state.notification.type} 
+              transition={{timeout: 150, unmountOnExit: true, onEntered: () => this.onNotificationEnteredTransition()}}
+              showCancelButton={this.state.notification.showCancelButton}
+              onCancel={() => this.handleCancelAutoSend()}
+            >
               {this.state.notification.message}
             </Toast>
           </div>

@@ -10,6 +10,7 @@ import * as gmail from '../modules/gmail';
 import {SubController} from './sub.controller';
 import {formatEmailAddress} from '../modules/key';
 import {setAppDataSlot} from '../controller/sub.controller';
+import {prefs} from '../modules/prefs';
 
 export default class GmailController extends SubController {
   constructor(port) {
@@ -20,9 +21,12 @@ export default class GmailController extends SubController {
     };
     this.peerType = 'gmailController';
     this.authorizationRequest = null;
+    this.autoSendTimer = null;
+    this.autoSendCancelled = false;
     // register event handlers
     this.on('open-editor', this.onOpenEditor);
     this.on('secure-button', this.onSecureBtn);
+    this.on('cancel-auto-send', this.onCancelAutoSend);
   }
 
   activateComponent() {
@@ -65,8 +69,6 @@ export default class GmailController extends SubController {
   }
 
   async encryptedMessage({armored, encFiles, subject, to, cc}) {
-    // send email via GMAIL api
-    this.peers.editorController.ports.editor.emit('send-mail-in-progress');
     const userEmail = this.state.userInfo.email;
     const toFormatted = to.map(({name, email}) => formatEmailAddress(email, name));
     const ccFormatted = cc.map(({name, email}) => formatEmailAddress(email, name));
@@ -80,6 +82,54 @@ export default class GmailController extends SubController {
     if (this.state.threadId) {
       sendOptions.threadId = this.state.threadId;
     }
+
+    // Check if auto-send is enabled
+    if (prefs.general.auto_send_msg) {
+      const delay = prefs.general.auto_send_delay || 5;
+      this.autoSendCancelled = false;
+      
+      // Show countdown notification
+      for (let remaining = delay; remaining > 0; remaining--) {
+        if (this.autoSendCancelled) {
+          this.peers.editorController.ports.editor.emit('show-notification', {
+            message: l10n.get('gmail_integration_send_cancelled'),
+            type: 'info',
+            autoHide: true,
+            hideDelay: 2000,
+            closeOnHide: true,
+            dismissable: false
+          });
+          return;
+        }
+        
+        this.peers.editorController.ports.editor.emit('show-notification', {
+          message: l10n.get('gmail_integration_auto_send_countdown', [remaining.toString()]),
+          type: 'info',
+          autoHide: false,
+          dismissable: true,
+          showCancelButton: true
+        });
+        
+        await new Promise(resolve => {
+          this.autoSendTimer = setTimeout(resolve, 1000);
+        });
+      }
+      
+      if (this.autoSendCancelled) {
+        this.peers.editorController.ports.editor.emit('show-notification', {
+          message: l10n.get('gmail_integration_send_cancelled'),
+          type: 'info',
+          autoHide: true,
+          hideDelay: 2000,
+          closeOnHide: true,
+          dismissable: false
+        });
+        return;
+      }
+    }
+
+    // send email via GMAIL api
+    this.peers.editorController.ports.editor.emit('send-mail-in-progress');
     try {
       await gmail.sendMessageMeta(sendOptions);
       this.peers.editorController.ports.editor.emit('show-notification', {
@@ -99,6 +149,14 @@ export default class GmailController extends SubController {
       });
     }
     await this.removePeer('editorController');
+  }
+
+  onCancelAutoSend() {
+    this.autoSendCancelled = true;
+    if (this.autoSendTimer) {
+      clearTimeout(this.autoSendTimer);
+      this.autoSendTimer = null;
+    }
   }
 
   async encryptError(error) {
